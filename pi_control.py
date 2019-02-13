@@ -15,10 +15,10 @@ GPIO.setup(6, GPIO.OUT)
 
 # set motor states
 def motor_state(e0,m0,e1,m1):
-		GPIO.output(26, e0)
-		GPIO.output(19, m0)
-		GPIO.output(5, e1)
-		GPIO.output(6, m1)
+	GPIO.output(26, e0)
+	GPIO.output(19, m0)
+	GPIO.output(5, e1)
+	GPIO.output(6, m1)
 
 # stop
 motor_state(0,0,0,0)
