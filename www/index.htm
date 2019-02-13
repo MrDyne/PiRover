@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8' />
+<title>PiRover</title>
+<style>
+* {background-color:black; color:black; text-align:center; font-size:50px;}
+button {width:75px; height:75px; font-size:40px; color:white; border: 2px solid white}
+button:active {background-color:white; color:black;}
+</style>
+</head>
+<body>
+
+<!-- table to layout buttons, float to left so it stacks -->
+<div style="float:left;">
+	<table>
+		<tr>
+			<td><button onmousedown="rc(2)" ontouchstart="rc(2)">⬉</button></td>
+			<td><button onmousedown="rc(1)" ontouchstart="rc(1)">⬆</button></td>
+			<td><button onmousedown="rc(3)" ontouchstart="rc(3)">⬈</button></td>
+		</tr>
+		<tr>
+			<td><button onmousedown="rc(4)" ontouchstart="rc(4)">⟲</button></td>
+			<td><button onmousedown="rc(0)" ontouchstart="rc(0)">🛑</button></td>
+			<td><button onmousedown="rc(5)" ontouchstart="rc(5)">⟳</button></td>
+		</tr>
+		<tr>
+			<td><button onmousedown="rc(6)" ontouchstart="rc(6)">⬋</button></td>
+			<td><button onmousedown="rc(8)" ontouchstart="rc(8)">⬇</button></td>
+			<td><button onmousedown="rc(7)" ontouchstart="rc(7)">⬊</button></td>
+		</tr>
+		<tr>
+			<td><button onmousedown="pt( 1,-1)" ontouchstart="pt( 1,-1)">⇖</button></td>
+			<td><button onmousedown="pt( 0,-1)" ontouchstart="pt( 0,-1)">⇑</button></td>
+			<td><button onmousedown="pt(-1,-1)" ontouchstart="pt(-1,-1)">⇗</button></td>
+		</tr>
+		<tr>
+			<td><button onmousedown="pt( 1, 0)" ontouchstart="pt( 1, 0)">⇐</button></td>
+			<td><button onmousedown="cn()" ontouchstart="cn()">⌧</button></td>
+			<td><button onmousedown="pt(-1, 0)" ontouchstart="pt(-1, 0)">⇒</button></td>
+		</tr>
+		<tr>
+			<td><button onmousedown="pt( 1, 1)" ontouchstart="pt( 1, 1)">⇙</button></td>
+			<td><button onmousedown="pt( 0, 1)" ontouchstart="pt( 0, 1)">⇓</button></td>
+			<td><button onmousedown="pt(-1, 1)" ontouchstart="pt(-1, 1)">⇘</button></td>
+		</tr>
+	</table>
+</div>
+
+<!-- float to left so it stacks, there is no src url for the img tag as js builds a relative url with diffrent port -->
+<div id="vid" style="float:left;">
+	<img id="stream" />
+</div>
+
+<script>
+
+// create relative img url with different port
+var image = document.getElementById("stream");
+image.src = ("http://" + window.location.hostname + ":8080/?action=stream")
+
+// start websocket connection to raspberry pi
+var ws_url = ("ws://" + window.location.hostname + ":8081");
+var socket;
+var ws_ready = false;
+connect();
+
+// vars
+var interval;
+var pan = 105;
+var tilt = 127;
+var drive = 0;
+
+//keyboard event listener
+window.addEventListener("keydown", onKeyDown, false);
+window.addEventListener("keyup", onKeyUp, false);
+
+// keyboard vals
+var dir_code = 0;
+var key_d = false;
+var key_s = false;
+var key_a = false;
+var key_w = false;
+
+// button release
+document.addEventListener('mouseup', stop);
+document.addEventListener('touchend', stop);
+
+// websocket
+function connect()
+{
+	console.log("Socket Connecting...");
+	socket = new WebSocket(ws_url);
+	
+	socket.onopen = function()
+	{
+		console.log("Socket Connected");
+		ws_ready = true;
+	};
+	
+	socket.onclose = function()
+	{
+		console.log("Socket Closed");
+		ws_ready = false;
+		socket = null;
+		setTimeout(function(){connect();}, 100);
+	};
+	
+	socket.onerror = function()
+	{
+		console.log("Socket Error");
+		socket.close();
+	};
+}
+
+// send websocket message
+function update()
+{
+	if (ws_ready == true)
+	{
+		socket.send(drive + "," + pan + "," + tilt);
+	}
+}
+
+// drive rover
+function rc(ss)
+{
+	drive = ss;
+	clearInterval(interval);
+	update();
+	interval = setInterval(tick, 100);
+}
+
+// move camera
+function pt(zz,yy)
+{
+	cam_z = zz;
+	cam_y = yy;
+	clearInterval(interval);
+	update();
+	interval = setInterval(tick, 100);
+}
+
+// center camera
+function cn()
+{
+	cam_z = 0;
+	cam_y = 0;
+	pan = 105;
+	tilt = 127;
+	update();
+}
+
+// stop everything
+function stop()
+{
+	cam_z = 0;
+	cam_y = 0;
+	drive = 0;
+	clearInterval(interval);
+	update();
+}
+
+// js does not have a built in medium?
+function medium(min, i, max) {return (i > min) ? ((i < max) ? i : max) : min;}
+
+// send another update
+function tick()
+{
+	pan = medium(0, pan + (cam_z * 10), 254);
+	tilt = medium(0, tilt + (cam_y * 10), 254);
+	update();
+}
+
+// key down
+function onKeyDown(event)
+{
+	var keyCode = event.keyCode;
+	switch (keyCode)
+	{
+		case 68: //d
+			key_d = true;
+			break;
+		case 83: //s
+			key_s = true;
+			break;
+		case 65: //a
+			key_a = true;
+			break;
+		case 87: //w
+			key_w = true;
+			break;
+	}
+	keyboard_update();
+	rc(drive);
+	console.log("Keyboard Packet");
+}
+
+// key up
+function onKeyUp(event)
+{
+	var keyCode = event.keyCode;
+	switch (keyCode)
+	{
+		case 68: //d
+			key_d = false;
+			break;
+		case 83: //s
+			key_s = false;
+			break;
+		case 65: //a
+			key_a = false;
+			break;
+		case 87: //w
+			key_w = false;
+			break;
+	}
+	keyboard_update();
+	stop();
+}
+
+// caculate 8th directions
+function keyboard_update()
+{
+	key_dir = 0;
+	if (key_d == true) key_dir += 1;
+	if (key_s == true) key_dir -= 3;
+	if (key_a == true) key_dir -= 1;
+	if (key_w == true) key_dir += 3;
+	
+	switch (key_dir)
+	{
+		case -4:
+			drive = 6;
+			break;
+		case -3:
+			drive = 8;
+			break;
+		case -2:
+			drive = 7;
+			break;
+		case -1:
+			drive = 4;
+			break;
+		case  0:
+			drive = 0;
+			break;
+		case  1:
+			drive = 5;
+			break;
+		case  2:
+			drive = 2;
+			break;
+		case  3:
+			drive = 1;
+			break;
+		case  4:
+			drive = 3;
+			break;
+	}
+}
+
+</script>
+</body>
+</html>
