@@ -14,3 +14,12 @@ A RPi powered rover that can be controlled over WiFi/Internet though a web brows
     - RPi-GPIO
     - WebSockets
     - PySerial
+
+# TODO
+- Web
+  - Limit Access
+    - Single Uses Access Codes
+    - Kick User Off
+    - Admin Override
+- Python
+  - Run Away Timeout
