@@ -1,6 +1,8 @@
 # PiRover
 A RPi powered rover that can be controlled over WiFi/Internet though a web browser.
 
+![PiRover](https://github.com/MrDyne/PiRover/blob/master/pirover.jpg)
+
 (Warning: Spaghetti Code!)
 
 - Web
