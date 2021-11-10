@@ -1,268 +1,194 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset='UTF-8' />
-<meta content=’width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0′ name=’viewport’ />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PiRover</title>
 <style>
-* {background-color:black; color:black; text-align:center; font-size:50px;}
-button {width:75px; height:75px; font-size:40px; color:white; border: 2px solid white}
-button:active {background-color:white; color:black;}
+* {font-family: monospace; font-size: 1em; text-align: center; color: white;}
+* {-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
+* {margin: 0px; padding: 0px; box-sizing: border-box;}
+body {background-color: black; background-size: 100vw 100vh; background-repeat: no-repeat;}
+.button {opacity: 0.2; color: white; background-color: black; width: 1.5cm; height: 1.5cm; border: 0.1cm solid white; font-size: 1cm;}
+.button:hover {color: gray; background-color: black; border: 0.1cm solid gray;}
+.button:active {color: black; background-color: white; border: 0.1cm solid white;}
 </style>
 </head>
-<body >
+<body>
 
-<!-- table to layout buttons, float to left so it stacks -->
-<div style="float:left;">
-	<table>
+<div>
+	<table style="float:left;">
 		<tr>
-			<td><button onmousedown="rc(2)" ontouchstart="rc(2)">⬉</button></td>
-			<td><button onmousedown="rc(1)" ontouchstart="rc(1)">⬆</button></td>
-			<td><button onmousedown="rc(3)" ontouchstart="rc(3)">⬈</button></td>
+			<td><div class="button" onmousedown="move(7)" ontouchstart="move(7)">⬉</div></td>
+			<td><div class="button" onmousedown="move(8)" ontouchstart="move(8)">⬆</div></td>
+			<td><div class="button" onmousedown="move(9)" ontouchstart="move(9)">⬈</div></td>
 		</tr>
 		<tr>
-			<td><button onmousedown="rc(4)" ontouchstart="rc(4)">⟲</button></td>
-			<td><button onmousedown="rc(0)" ontouchstart="rc(0)">🛑</button></td>
-			<td><button onmousedown="rc(5)" ontouchstart="rc(5)">⟳</button></td>
+			<td><div class="button" onmousedown="move(4)" ontouchstart="move(4)">⟲</div></td>
+			<td><div class="button" onmousedown="stop()"  ontouchstart="stop()">🛑</div></td>
+			<td><div class="button" onmousedown="move(6)" ontouchstart="move(6)">⟳</div></td>
 		</tr>
 		<tr>
-			<td><button onmousedown="rc(6)" ontouchstart="rc(6)">⬋</button></td>
-			<td><button onmousedown="rc(8)" ontouchstart="rc(8)">⬇</button></td>
-			<td><button onmousedown="rc(7)" ontouchstart="rc(7)">⬊</button></td>
-		</tr>
-		<tr>
-			<td><button onmousedown="pt( 1,-1)" ontouchstart="pt( 1,-1)">⇖</button></td>
-			<td><button onmousedown="pt( 0,-1)" ontouchstart="pt( 0,-1)">⇑</button></td>
-			<td><button onmousedown="pt(-1,-1)" ontouchstart="pt(-1,-1)">⇗</button></td>
-		</tr>
-		<tr>
-			<td><button onmousedown="pt( 1, 0)" ontouchstart="pt( 1, 0)">⇐</button></td>
-			<td><button onmousedown="cn()" ontouchstart="cn()">⌧</button></td>
-			<td><button onmousedown="pt(-1, 0)" ontouchstart="pt(-1, 0)">⇒</button></td>
-		</tr>
-		<tr>
-			<td><button onmousedown="pt( 1, 1)" ontouchstart="pt( 1, 1)">⇙</button></td>
-			<td><button onmousedown="pt( 0, 1)" ontouchstart="pt( 0, 1)">⇓</button></td>
-			<td><button onmousedown="pt(-1, 1)" ontouchstart="pt(-1, 1)">⇘</button></td>
+			<td><div class="button" onmousedown="move(1)" ontouchstart="move(1)">⬋</div></td>
+			<td><div class="button" onmousedown="move(2)" ontouchstart="move(2)">⬇</div></td>
+			<td><div class="button" onmousedown="move(3)" ontouchstart="move(3)">⬊</div></td>
 		</tr>
 	</table>
-</div>
-
-<!-- float to left so it stacks, there is no src url for the img tag as js builds a relative url with diffrent port -->
-<div id="vid" style="float:left;">
-	<img id="stream" />
+	<table style="float:right;">
+		<tr>
+			<td><div class="button" onclick="cam(7)">⇖</div></td>
+			<td><div class="button" onclick="cam(8)">⇑</div></td>
+			<td><div class="button" onclick="cam(9)">⇗</div></td>
+		</tr>
+		<tr>
+			<td><div class="button" onclick="cam(4)">⇐</div></td>
+			<td><div class="button" onclick="cam(5)">⛔</div></td>
+			<td><div class="button" onclick="cam(6)">⇒</div></td>
+		</tr>
+		<tr>
+			<td><div class="button" onclick="cam(1)">⇙</div></td>
+			<td><div class="button" onclick="cam(2)">⇓</div></td>
+			<td><div class="button" onclick="cam(3)">⇘</div></td>
+		</tr>
+	</table>
+	<table style="position: fixed; bottom: 0px;">
+		<tr>
+			<td><div class="button" onclick="lights()">💡</div></td>
+			<td><div class="button" onclick="laser()">🏮</div></td>
+			<td><div class="button" onclick="speak()">🔊</div></td>
+			<td><div class="button" onclick="fullscreen()">🔍</div></td>
+		</tr>
+	</table>
+	<div id="status"><b style="color:yellow;">CONNECTING...</b></div>
 </div>
 
 <script>
-// block right click menu - long presses?
-window.oncontextmenu = function(event) {
-     event.preventDefault();
-     event.stopPropagation();
-     return false;
-};
-
-// create relative img url with different port
-var image = document.getElementById("stream");
-image.src = ("http://" + window.location.hostname + ":8080/?action=stream")
-
-// start websocket connection to raspberry pi
-var ws_url = ("ws://" + window.location.hostname + ":8081");
-var socket;
-var ws_ready = false;
-connect();
-
-// vars
-var interval;
-var pan = 105;
-var tilt = 127;
-var drive = 0;
-
-//keyboard event listener
-window.addEventListener("keydown", onKeyDown, false);
-window.addEventListener("keyup", onKeyUp, false);
-
-// keyboard vals
-var dir_code = 0;
-var key_d = false;
-var key_s = false;
-var key_a = false;
-var key_w = false;
+// block right click menu and long presses
+window.oncontextmenu = function(event) {event.preventDefault(); event.stopPropagation(); return false;};
 
 // button release
 document.addEventListener('mouseup', stop);
 document.addEventListener('touchend', stop);
 
+// start video stream
+document.body.style.backgroundImage = "url('http://" + window.location.hostname + ":8080/?action=stream')";
+
+// vars
+var laser_first_time = false;
+
+// setup and start websocket
+var net = document.getElementById("status");
+var ws_url = ("ws://" + window.location.hostname + ":8081");
+var ws_ready = false;
+var heart_beat;
+var ws;
+connect();
+
 // websocket
 function connect()
 {
 	console.log("Socket Connecting...");
-	socket = new WebSocket(ws_url);
-	
-	socket.onopen = function()
+	ws = new WebSocket(ws_url);
+
+	ws.onopen = function()
 	{
 		console.log("Socket Connected");
+		net.innerHTML = '<b style="color:lime;">CONNECTED</b>';
+		heart_beat = setInterval(beat, 500);
 		ws_ready = true;
 	};
-	
-	socket.onclose = function()
+
+	ws.onclose = function()
 	{
 		console.log("Socket Closed");
 		ws_ready = false;
-		socket = null;
-		setTimeout(function(){connect();}, 100);
+		clearTimeout(heart_beat);
+		ws = null;
+		console.log("Retrying...");
+		net.innerHTML = '<b style="color:red;">RETRYING...</b>';
+		setTimeout(function(){connect();}, 500);
 	};
-	
-	socket.onerror = function()
+
+	ws.onerror = function()
 	{
 		console.log("Socket Error");
-		socket.close();
+		net.innerHTML = '<b style="color:red;">ERROR</b>';
+		ws.close();
 	};
 }
 
-// send websocket message
-function update()
+// actions
+
+function stop() {if (ws_ready == true) {ws.send(JSON.stringify({action: "stop"}));}}
+
+function move(direction)
 {
 	if (ws_ready == true)
 	{
-		socket.send(drive + "," + pan + "," + tilt);
+		ws.send(JSON.stringify({action: "move", dir: direction}));
 	}
 }
 
-// drive rover
-function rc(ss)
+function cam(direction)
 {
-	drive = ss;
-	clearInterval(interval);
-	update();
-	interval = setInterval(tick, 100);
-}
-
-// move camera
-function pt(zz,yy)
-{
-	cam_z = zz;
-	cam_y = yy;
-	clearInterval(interval);
-	update();
-	interval = setInterval(tick, 100);
-}
-
-// center camera
-function cn()
-{
-	cam_z = 0;
-	cam_y = 0;
-	pan = 105;
-	tilt = 127;
-	update();
-}
-
-// stop everything
-function stop()
-{
-	cam_z = 0;
-	cam_y = 0;
-	drive = 0;
-	clearInterval(interval);
-	update();
-}
-
-// js does not have a built in medium?
-function medium(min, i, max) {return (i > min) ? ((i < max) ? i : max) : min;}
-
-// send another update
-function tick()
-{
-	pan = medium(0, pan + (cam_z * 10), 254);
-	tilt = medium(0, tilt + (cam_y * 10), 254);
-	update();
-}
-
-// key down
-function onKeyDown(event)
-{
-	var keyCode = event.keyCode;
-	switch (keyCode)
+	if (ws_ready == true)
 	{
-		case 68: //d
-			key_d = true;
-			break;
-		case 83: //s
-			key_s = true;
-			break;
-		case 65: //a
-			key_a = true;
-			break;
-		case 87: //w
-			key_w = true;
-			break;
+		ws.send(JSON.stringify({action: "cam", dir: direction}));
 	}
-	keyboard_update();
-	rc(drive);
-	console.log("Keyboard Packet");
 }
 
-// key up
-function onKeyUp(event)
+function beat() {if (ws_ready == true) {ws.send(JSON.stringify({action: "beat"}));}}
+
+function speak()
 {
-	var keyCode = event.keyCode;
-	switch (keyCode)
+	if (ws_ready == true)
 	{
-		case 68: //d
-			key_d = false;
-			break;
-		case 83: //s
-			key_s = false;
-			break;
-		case 65: //a
-			key_a = false;
-			break;
-		case 87: //w
-			key_w = false;
-			break;
+		var speak_text = prompt("Speak:", "");
+		if (!speak_text == null || !speak_text == "")
+		{
+			ws.send(JSON.stringify({action: "speak", text: speak_text}));
+		}
 	}
-	keyboard_update();
-	stop();
 }
 
-// caculate 8th directions
-function keyboard_update()
+function laser()
 {
-	key_dir = 0;
-	if (key_d == true) key_dir += 1;
-	if (key_s == true) key_dir -= 3;
-	if (key_a == true) key_dir -= 1;
-	if (key_w == true) key_dir += 3;
-	
-	switch (key_dir)
+	if (ws_ready == true)
 	{
-		case -4:
-			drive = 6;
-			break;
-		case -3:
-			drive = 8;
-			break;
-		case -2:
-			drive = 7;
-			break;
-		case -1:
-			drive = 4;
-			break;
-		case  0:
-			drive = 0;
-			break;
-		case  1:
-			drive = 5;
-			break;
-		case  2:
-			drive = 2;
-			break;
-		case  3:
-			drive = 1;
-			break;
-		case  4:
-			drive = 3;
-			break;
+		if (laser_first_time == false)
+		{
+			alert("\t\t⚠ DANGER ⚠\n  This is a real pointer laser!\n Do not aim at people's faces!");
+			laser_first_time = true;
+		}
+		else
+		{
+			ws.send(JSON.stringify({action: "laser"}));
+		}
+	}
+}
+
+function lights() {if (ws_ready == true){ws.send(JSON.stringify({action: "lights"}));}}
+
+var full = false;
+var elem = document.documentElement;
+
+function fullscreen()
+{
+	if (full == false)
+	{
+		if (elem.requestFullscreen) {elem.requestFullscreen();} 
+		else if (elem.mozRequestFullScreen) {elem.mozRequestFullScreen();}
+		else if (elem.webkitRequestFullscreen) {elem.webkitRequestFullscreen();}
+		else if (elem.msRequestFullscreen) {elem.msRequestFullscreen();}
+		full = true;
+	}
+	else
+	{
+		if (document.exitFullscreen) {document.exitFullscreen();}
+		else if (document.mozCancelFullScreen) {document.mozCancelFullScreen();}
+		else if (document.webkitExitFullscreen) {document.webkitExitFullscreen();}
+		else if (document.msExitFullscreen) {document.msExitFullscreen();}
+		full = false;
 	}
 }
 
